@@ -1,0 +1,15 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "laravel-boost": {
+            "type": "local",
+            "enabled": true,
+            "command": [
+                "wsl.exe",
+                "/home/gzus/.config/herd-lite/bin/php",
+                "/home/gzus/Proyectos/Php/proyecto-ecommers/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}
