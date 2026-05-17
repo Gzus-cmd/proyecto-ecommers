@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-
+uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 test('profile page is displayed', function () {
     $user = User::factory()->create();
 
@@ -19,7 +19,7 @@ test('profile information can be updated', function () {
         ->actingAs($user)
         ->patch(route('profile.update'), [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'nuevo_' . $user->email, // <-- CAMBIA ESTA LÍNEA (Le agrega "nuevo_" al inicio)
         ]);
 
     $response
@@ -29,7 +29,7 @@ test('profile information can be updated', function () {
     $user->refresh();
 
     expect($user->name)->toBe('Test User');
-    expect($user->email)->toBe('test@example.com');
+    expect($user->email)->toBe('nuevo_' . $user->email); // <-- CAMBIA ESTA LÍNEA (Verifica que el email se haya actualizado con "nuevo_")
     expect($user->email_verified_at)->toBeNull();
 });
 
