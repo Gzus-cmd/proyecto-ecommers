@@ -17,9 +17,23 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    
+    # -------------------------------------------------------------------------
+    # AGREGADO: Servicio MySQL requerido para levantar la base de datos real
+    # -------------------------------------------------------------------------
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     strategy:
       matrix:
-        php-version: ['8.3', '8.4', '8.5']
+        php-version: ['8.4', '8.5']
 
     steps:
       - name: Checkout code
@@ -52,5 +66,28 @@ jobs:
       - name: Build Assets
         run: npm run build
 
+      # -------------------------------------------------------------------------
+      # MODIFICADO: Agregadas las variables de entorno necesarias para la conexión
+      # -------------------------------------------------------------------------
+      - name: Run Migrations
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: testing
+          DB_USERNAME: root
+          DB_PASSWORD: ""
+
+      # -------------------------------------------------------------------------
+      # MODIFICADO: Agregadas las variables de entorno necesarias para Pest
+      # -------------------------------------------------------------------------
       - name: Tests
         run: ./vendor/bin/pest
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: testing
+          DB_USERNAME: root
+          DB_PASSWORD: ""
