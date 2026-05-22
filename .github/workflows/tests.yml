@@ -1,5 +1,3 @@
-# Forzando ejecucion de pruebas tras cambiar a rama develop
-
 name: tests
 
 on:
