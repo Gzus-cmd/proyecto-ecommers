@@ -7,12 +7,14 @@ on:
       - main
       - master
       - workos
+      - test-infra-ci
   pull_request:
     branches:
       - develop
       - main
       - master
       - workos
+      - test-infra-ci
 
 permissions:
   contents: write
@@ -26,7 +28,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.5'
 
       - name: Install Dependencies
         run: |

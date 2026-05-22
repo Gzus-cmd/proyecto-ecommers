@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-
+uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 test('profile page is displayed', function () {
     $user = User::factory()->create();
 
@@ -14,12 +14,14 @@ test('profile page is displayed', function () {
 
 test('profile information can be updated', function () {
     $user = User::factory()->create();
+// 1. Guardamos el correo esperado en una variable antes de enviar el formulario
+    $emailEsperado = 'nuevo_' . $user->email;
 
     $response = $this
         ->actingAs($user)
         ->patch(route('profile.update'), [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => $emailEsperado, // <-- CAMBIA ESTA LÍNEA (Le agrega "nuevo_" al inicio)
         ]);
 
     $response
@@ -29,7 +31,7 @@ test('profile information can be updated', function () {
     $user->refresh();
 
     expect($user->name)->toBe('Test User');
-    expect($user->email)->toBe('test@example.com');
+    expect($user->email)->toBe($emailEsperado); // <-- CAMBIA ESTA LÍNEA (Verifica que el email se haya actualizado con "nuevo_")
     expect($user->email_verified_at)->toBeNull();
 });
 
