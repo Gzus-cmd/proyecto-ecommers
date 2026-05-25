@@ -11,6 +11,7 @@ import {
     Users, 
     Building2 
 } from 'lucide-vue-next';
+
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -24,7 +25,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-// --- IMPORTACIÓN DE RUTAS Y CONTROLADORES (Wayfinder) ---
+
 import { dashboard } from '@/routes';
 import * as ProductoController from '@/actions/App/Http/Controllers/Central/ProductoMaestroController';
 import * as LoteController from '@/actions/App/Http/Controllers/Central/LoteController';
@@ -37,13 +38,13 @@ import * as LaboratorioController from '@/actions/App/Http/Controllers/Central/L
 
 import type { NavItem } from '@/types';
 
-// Interface para las secciones del menú
+
 interface NavSection {
     label: string;
     items: NavItem[];
 }
 
-// Estructura organizada de PharmaVictoria
+
 const navigationSections: NavSection[] = [
     {
         label: 'Resumen',
@@ -79,7 +80,7 @@ const navigationSections: NavSection[] = [
 
 <template>
     <Sidebar collapsible="icon" variant="inset">
-        <!-- Encabezado del Menú con Logo -->
+
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
@@ -92,21 +93,18 @@ const navigationSections: NavSection[] = [
             </SidebarMenu>
         </SidebarHeader>
 
-        <!-- Contenido Principal (Navegación Agrupada) -->
+
         <SidebarContent>
-            <!-- NavMain debe estar configurado para recibir 'sections' -->
+
             <NavMain :sections="navigationSections" />
         </SidebarContent>
 
-        <!-- Pie del Menú (Usuario) -->
+
         <SidebarFooter>
             <NavUser />
         </SidebarFooter>
     </Sidebar>
     
-    <!-- 
-        IMPORTANTE: Este <slot /> es el que renderiza el contenido de tus páginas 
-        (Dashboard, Productos, etc.) al lado del menú. No lo quites. 
-    -->
+
     <slot />
 </template>
