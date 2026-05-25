@@ -39,7 +39,7 @@ const inputStyle = "w-full h-11 rounded-lg border-border bg-background px-4 text
 
     <AppPageShell title="Nueva Sede Local" variant="narrow">
         
->
+
         <AppPageHeader 
             title="Nueva Sede" 
             subtitle="Registre un nuevo punto de venta o almacén dentro de la red PharmaVictoria."
