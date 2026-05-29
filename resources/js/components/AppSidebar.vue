@@ -1,18 +1,8 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { 
-    LayoutGrid, 
-    Package, 
-    Layers, 
-    RefreshCcw, 
-    Tags, 
-    Truck, 
-    MapPin, 
-    Users, 
-    Building2 
-} from 'lucide-vue-next';
-
+import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
+import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
@@ -24,63 +14,33 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-
-
-import type { NavItem } from '@/types';
-import * as CategoriaController from '@/actions/App/Http/Controllers/Central/CategoriaController';
-import * as LaboratorioController from '@/actions/App/Http/Controllers/Central/LaboratorioController';
-import * as LoteController from '@/actions/App/Http/Controllers/Central/LoteController';
-import * as MovimientoInventarioController from '@/actions/App/Http/Controllers/Central/MovimientoInventarioController';
-import * as ProductoController from '@/actions/App/Http/Controllers/Central/ProductoMaestroController';
-import * as ProveedorController from '@/actions/App/Http/Controllers/Central/ProveedorController';
-import * as SedeController from '@/actions/App/Http/Controllers/Central/SedeController';
-import * as TransferenciaController from '@/actions/App/Http/Controllers/Central/TransferenciaController';
 import { dashboard } from '@/routes';
+import type { NavItem } from '@/types';
 
-
-
-interface NavSection {
-    label: string;
-    items: NavItem[];
-}
-
-
-const navigationSections: NavSection[] = [
+const mainNavItems: NavItem[] = [
     {
-        label: 'Resumen',
-        items: [
-            { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
-        ],
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
+];
+
+const footerNavItems: NavItem[] = [
+    {
+        title: 'Repository',
+        href: 'https://github.com/laravel/vue-starter-kit',
+        icon: FolderGit2,
     },
     {
-        label: 'Gestión de Inventario',
-        items: [
-            { title: 'Productos', href: ProductoController.index.url(), icon: Package },
-            { title: 'Lotes y Stock', href: LoteController.index.url(), icon: Layers },
-            { title: 'Kardex (Movimientos)', href: MovimientoInventarioController.index.url(), icon: RefreshCcw },
-            { title: 'Categorías', href: CategoriaController.index.url(), icon: Tags },
-        ],
-    },
-    {
-        label: 'Operaciones y Logística',
-        items: [
-            { title: 'Transferencias', href: TransferenciaController.index.url(), icon: Truck },
-            { title: 'Sedes', href: SedeController.index.url(), icon: MapPin },
-        ],
-    },
-    {
-        label: 'Abastecimiento',
-        items: [
-            { title: 'Proveedores', href: ProveedorController.index.url(), icon: Users },
-            { title: 'Laboratorios', href: LaboratorioController.index.url(), icon: Building2 },
-        ],
+        title: 'Documentation',
+        href: 'https://laravel.com/docs/starter-kits#vue',
+        icon: BookOpen,
     },
 ];
 </script>
 
 <template>
     <Sidebar collapsible="icon" variant="inset">
-
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
@@ -93,18 +53,14 @@ const navigationSections: NavSection[] = [
             </SidebarMenu>
         </SidebarHeader>
 
-
         <SidebarContent>
-
-            <NavMain :sections="navigationSections" />
+            <NavMain :items="mainNavItems" />
         </SidebarContent>
 
-
         <SidebarFooter>
+            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>
-    
-
     <slot />
 </template>

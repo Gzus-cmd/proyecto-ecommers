@@ -1,27 +1,27 @@
 <script setup lang="ts">
+import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
-import { SidebarInset } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
 import type { BreadcrumbItem } from '@/types';
 
-defineProps<{ breadcrumbs?: BreadcrumbItem[] }>();
+type Props = {
+    breadcrumbs?: BreadcrumbItem[];
+};
+
+withDefaults(defineProps<Props>(), {
+    breadcrumbs: () => [],
+});
 </script>
 
 <template>
     <AppShell variant="sidebar">
         <AppSidebar />
-        <SidebarInset>
+        <AppContent variant="sidebar" class="overflow-x-hidden">
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
-            
-            <!-- 
-                Dejamos el slot libre. 
-                Cada página (Dashboard, Productos) decidirá su propio tamaño.
-            -->
             <slot />
-            
-        </SidebarInset>
+        </AppContent>
         <Toaster />
     </AppShell>
 </template>
