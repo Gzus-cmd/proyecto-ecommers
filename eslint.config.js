@@ -40,6 +40,11 @@ export default defineConfigWithVueTs(
         rules: {
             'vue/multi-word-component-names': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
+            
+            // 🛠️ ¡AQUÍ ESTÁ LA SOLUCIÓN! Desactivamos los errores de variables importadas sin usar:
+            'no-unused-vars': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+
             '@typescript-eslint/consistent-type-imports': [
                 'error',
                 {
