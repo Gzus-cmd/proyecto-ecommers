@@ -6,26 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('central_movimientos_inventario', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lote_id')->constrained('central_lotes');
+            // Relación con el lote afectado
+            $table->foreignId('lote_id')->constrained('central_lotes')->onDelete('cascade');
+            
+            // Relación con la tabla de tipos (Envío, Devolución, etc.)
             $table->foreignId('tipo_movimiento_id')->constrained('central_tipos_movimiento');
-            $table->timestamp('fecha_movimiento')->useCurrent(); // Toma la fecha y hora exacta
-            $table->integer('cantidad');
-            $table->string('observacion')->nullable();
+            
+            // Relación Polimórfica: Crea 'movimentable_id' y 'movimentable_type'
+            // Esto permite referenciar a una Transferencia, una Venta, etc.
+            $table->string('movimentable_type');
+            $table->unsignedBigInteger('movimentable_id');
+            $table->index(['movimentable_type', 'movimentable_id'], 'mov_movimentable_idx');  
+            
+            $table->integer('cantidad'); // Cantidad que varió (negativa para salidas)
+            $table->integer('stock_antes'); // Auditoría: Stock antes del proceso
+            $table->integer('stock_despues'); // Auditoría: Stock resultante
+            
+            $table->foreignId('usuario_id')->constrained('users'); // Quién hizo el movimiento
+            $table->timestamp('fecha_movimiento')->useCurrent();
+            $table->text('observacion')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('central_movimientos_inventario');
     }
