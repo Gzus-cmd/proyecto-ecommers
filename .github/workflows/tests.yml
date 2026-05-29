@@ -7,16 +7,32 @@ on:
       - main
       - master
       - workos
+      - test-infra-ci
   pull_request:
     branches:
       - develop
       - main
       - master
       - workos
+      - test-infra-ci
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    
+    # -------------------------------------------------------------------------
+    # AGREGADO: Servicio MySQL requerido para levantar la base de datos real
+    # -------------------------------------------------------------------------
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     strategy:
       matrix:
         php-version: ['8.5']
@@ -52,5 +68,40 @@ jobs:
       - name: Build Assets
         run: npm run build
 
+      # ESTE PASO ES CRUCIAL: Elimina cualquier pre-renderizado erróneo de las vistas
+      - name: Purgar cache de Laravel
+        run: |
+          php artisan config:clear
+          php artisan view:clear
+          php artisan cache:clear
+
+        env:
+          CACHE_STORE: array
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: testing
+          DB_USERNAME: root
+          DB_PASSWORD: ""
+
+      - name: Run Migrations
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: testing
+          DB_USERNAME: root
+          DB_PASSWORD: ""
+
       - name: Tests
         run: ./vendor/bin/pest
+        env:
+          APP_ENV: testing
+          VITE_HOT_RELOAD: "false"
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: testing
+          DB_USERNAME: root
+          DB_PASSWORD: ""
