@@ -18,7 +18,9 @@ return new class extends Migration
             
             // Relación Polimórfica: Crea 'movimentable_id' y 'movimentable_type'
             // Esto permite referenciar a una Transferencia, una Venta, etc.
-            $table->morphs('movimentable'); 
+            $table->string('movimentable_type');
+            $table->unsignedBigInteger('movimentable_id');
+            $table->index(['movimentable_type', 'movimentable_id'], 'mov_movimentable_idx');  
             
             $table->integer('cantidad'); // Cantidad que varió (negativa para salidas)
             $table->integer('stock_antes'); // Auditoría: Stock antes del proceso
