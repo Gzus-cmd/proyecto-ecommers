@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-
+uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 test('profile page is displayed', function () {
     $user = User::factory()->create();
 
@@ -14,6 +14,8 @@ test('profile page is displayed', function () {
 
 test('profile information can be updated', function () {
     $user = User::factory()->create();
+// 1. Guardamos el correo esperado en una variable antes de enviar el formulario
+    $emailEsperado = 'nuevo_' . $user->email;
 
     $response = $this
         ->actingAs($user)
