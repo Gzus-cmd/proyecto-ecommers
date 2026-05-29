@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3'
-import AppPageShell from '@/components/app/AppPageShell.vue'
-import AppPageHeader from '@/components/app/AppPageHeader.vue'
-import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppFormActions from '@/components/app/AppFormActions.vue'
+import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
+import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import ProductoForm from './ProductoForm.vue'
 import * as ProductoMaestroController from '@/actions/App/Http/Controllers/Central/ProductoMaestroController'
 

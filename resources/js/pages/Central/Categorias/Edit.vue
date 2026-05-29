@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Head, useForm, Link, router } from '@inertiajs/vue3'
 import { Trash2, Tags } from 'lucide-vue-next'
+import { ref } from 'vue'
 
 
-import AppPageShell from '@/components/app/AppPageShell.vue'
-import AppPageHeader from '@/components/app/AppPageHeader.vue'
-import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppEditContextCard from '@/components/app/AppEditContextCard.vue'
+import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
+import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 
 import * as CategoriaController from '@/actions/App/Http/Controllers/Central/CategoriaController'

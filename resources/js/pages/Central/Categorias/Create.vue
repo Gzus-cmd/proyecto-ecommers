@@ -2,10 +2,10 @@
 import { Head, useForm } from '@inertiajs/vue3'
 
 
-import AppPageShell from '@/components/app/AppPageShell.vue'
-import AppPageHeader from '@/components/app/AppPageHeader.vue'
-import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppFormActions from '@/components/app/AppFormActions.vue'
+import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
+import AppSectionCard from '@/components/app/AppSectionCard.vue'
 
 import * as CategoriaController from '@/actions/App/Http/Controllers/Central/CategoriaController'
  

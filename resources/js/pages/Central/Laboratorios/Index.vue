@@ -1,19 +1,17 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import { router, Head, Link } from '@inertiajs/vue3'
 import { debounce } from 'lodash'
 import { Search, Plus, Edit3, Trash2, Building2 } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 
-// --- COMPONENTES ESTRUCTURALES ---
-import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppStatusBadge from '@/components/app/AppStatusBadge.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 
 import * as LaboratorioController from '@/actions/App/Http/Controllers/Central/LaboratorioController'
 
-// --- CONFIGURACIÓN DEL LAYOUT ---
 defineOptions({
     layout: {
         breadcrumbs: [
@@ -36,13 +34,12 @@ interface Paginator {
 }
  
 const props = defineProps<{
-    laboratorios: Paginator // Asegúrate que el controlador envíe 'laboratorios'
+    laboratorios: Paginator
     filters: { search?: string }
 }>()
  
 const search = ref(props.filters.search ?? '')
  
-// --- LÓGICA DE FILTROS ---
 const applyFilters = () => {
     router.get(
         LaboratorioController.index.url(),
@@ -52,7 +49,6 @@ const applyFilters = () => {
 }
 watch(search, debounce(() => applyFilters(), 400))
 
-// --- LÓGICA DEL MODAL DE ELIMINACIÓN ---
 const mostrarModalEliminar = ref(false)
 const laboratorioSeleccionado = ref<Laboratorio | null>(null)
 
@@ -73,12 +69,20 @@ function confirmarEliminacion() {
         })
     }
 }
+
+// Helper para limpiar las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
+const mapearLabelPaginacion = (label: string) => {
+    return label
+        .replace('&laquo; Previous', '← Anterior')
+        .replace('Next &raquo;', 'Siguiente →')
+        .replace('&laquo;', '←')
+        .replace('&raquo;', '→');
+}
 </script>
  
 <template>
     <AppPageShell title="Laboratorios" variant="full">
         
-        <!-- ENCABEZADO -->
         <AppPageHeader 
             title="Laboratorios" 
             subtitle="Gestión de fabricantes y marcas farmacéuticas."
@@ -93,7 +97,6 @@ function confirmarEliminacion() {
             </template>
         </AppPageHeader>
 
-        <!-- FILTROS -->
         <AppSectionCard>
             <div class="relative max-w-md text-foreground">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60">
@@ -108,7 +111,6 @@ function confirmarEliminacion() {
             </div>
         </AppSectionCard>
  
-        <!-- TABLA ESTIRADA -->
         <AppSectionCard fill noPadding title="Registros de Laboratorios">
             <div class="overflow-x-auto flex-1">
                 <table class="w-full text-sm text-left border-collapse">
@@ -120,7 +122,6 @@ function confirmarEliminacion() {
                             <th class="px-8 py-5 text-right">Acciones</th>
                         </tr>
                     </thead>
-                    <!-- USAMOS PROPS.LABORATORIOS PARA EVITAR ERRORES DE UNDEFINED -->
                     <tbody v-if="props.laboratorios" class="divide-y divide-border/50 text-foreground">
                         <tr v-for="l in props.laboratorios.data" :key="l.id" class="hover:bg-muted/10 transition-colors group">
                             <td class="px-8 py-6 font-mono text-xs text-muted-foreground">#{{ l.id }}</td>
@@ -155,17 +156,16 @@ function confirmarEliminacion() {
                 </table>
             </div>
  
-            <!-- PAGINACIÓN CORREGIDA -->
             <template #footer>
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
                     <span class="text-[9px] text-muted-foreground font-black uppercase tracking-widest">
                         Total: {{ props.laboratorios.total }} registros
                     </span>
-                    <div class="flex items-center gap-1">
+                    <div v-if="props.laboratorios.links.length > 3" class="flex items-center gap-1">
                         <template v-for="(link, k) in props.laboratorios.links" :key="k">
                             <Link v-if="link.url" :href="link.url"
                                 :class="['rounded-lg px-3 py-1.5 text-xs font-bold border transition-all', link.active ? 'bg-primary border-primary text-primary-foreground shadow-md' : 'border-border bg-background text-foreground hover:bg-muted']">
-                                <span v-html="link.label"></span>
+                                {{ mapearLabelPaginacion(link.label) }}
                             </Link>
                         </template>
                     </div>
@@ -173,13 +173,12 @@ function confirmarEliminacion() {
             </template>
         </AppSectionCard>
 
-        <!-- MODAL -->
         <DeleteConfirmModal 
-            :show="mostrarModalEliminar"
-            :itemName="laboratorioSeleccionado?.nombre"
-            type="laboratorio"
-            @close="cerrarModal"
-            @confirm="confirmarEliminacion"
+            :show="mostrarModalEliminar" 
+            :itemName="laboratorioSeleccionado?.nombre" 
+            type="laboratorio" 
+            @close="cerrarModal" 
+            @confirm="confirmarEliminacion" 
         />
  
     </AppPageShell>

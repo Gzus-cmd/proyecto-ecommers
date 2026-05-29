@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
 import { useForm, Link, Head, router } from '@inertiajs/vue3'
 import { Trash2, Truck, AlertTriangle, ArrowLeft, Plus } from 'lucide-vue-next'
+import { ref, computed, onMounted } from 'vue'
 
 
-import AppPageShell from '@/components/app/AppPageShell.vue'
-import AppPageHeader from '@/components/app/AppPageHeader.vue'
-import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppEditContextCard from '@/components/app/AppEditContextCard.vue'
+import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
+import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 
 import * as TransferenciaController from '@/actions/App/Http/Controllers/Central/TransferenciaController'
@@ -34,6 +34,7 @@ const form = useForm({
 
 const nombreSedeElegida = computed(() => {
     const sede = props.sedes.find(s => s.id === form.sede_destino_id);
+
     return sede ? sede.nombre : 'Sin destino';
 })
 
@@ -55,14 +56,19 @@ const item = ref({ producto_id: null as number | null, lote_id: null as number |
 
 const lotesDisponibles = computed(() => {
     const p = props.productosConLotes.find(p => p.id === item.value.producto_id)
+
     return p ? p.lotes : []
 })
 
 function agregar() {
     const p = props.productosConLotes.find(p => p.id === item.value.producto_id)
     const l = lotesDisponibles.value.find((l: any) => l.id === item.value.lote_id)
+
     if (p && l && item.value.cantidad > 0) {
-        if (form.detalles.some(d => d.lote_id === l.id)) return alert('Ya está en la lista')
+        if (form.detalles.some(d => d.lote_id === l.id)) {
+return alert('Ya está en la lista')
+}
+
         form.detalles.push({ lote_id: l.id, cantidad: item.value.cantidad, nombre: p.nombre_comercial, lote_num: l.numero_lote })
         item.value.lote_id = null; item.value.cantidad = 1;
     }

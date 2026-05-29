@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { router, Head, Link } from '@inertiajs/vue3'
+import { router, Link } from '@inertiajs/vue3'
 import { debounce } from 'lodash'
 import { Search, Plus, Edit3, Trash2 } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 
-
-import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 
 import * as CategoriaController from '@/actions/App/Http/Controllers/Central/CategoriaController'
-
 
 defineOptions({
     layout: {
@@ -72,11 +70,19 @@ function confirmarEliminacion() {
         })
     }
 }
+
+// Helper para limpiar las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
+const mapearLabelPaginacion = (label: string) => {
+    return label
+        .replace('&laquo; Previous', '← Anterior')
+        .replace('Next &raquo;', 'Siguiente →')
+        .replace('&laquo;', '←')
+        .replace('&raquo;', '→');
+}
 </script>
  
 <template>
     <AppPageShell title="Categorías de Productos" variant="full">
-
 
         <AppPageHeader 
             title="Categorías" 
@@ -92,7 +98,6 @@ function confirmarEliminacion() {
             </template>
         </AppPageHeader>
 
-
         <AppSectionCard>
             <div class="relative max-w-md">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60">
@@ -107,7 +112,6 @@ function confirmarEliminacion() {
             </div>
         </AppSectionCard>
  
-
         <AppSectionCard fill noPadding title="Listado de Categorías">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-border text-sm text-left border-collapse">
@@ -158,14 +162,13 @@ function confirmarEliminacion() {
                 </table>
             </div>
  
-
             <template #footer>
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
                     <span class="text-[9px] text-muted-foreground font-black uppercase tracking-widest">
                         Total en el sistema: {{ categorias.total }} categorías
                     </span>
-                    
-                    <div class="flex items-center gap-1">
+                     
+                    <div v-if="categorias.links.length > 3" class="flex items-center gap-1">
                         <template v-for="(link, index) in categorias.links" :key="index">
                             <Link
                                 v-if="link.url"
@@ -176,14 +179,14 @@ function confirmarEliminacion() {
                                         ? 'bg-primary border-primary text-primary-foreground shadow-md'
                                         : 'border-border bg-background text-muted-foreground hover:bg-muted'
                                 ]"
-                                v-html="link.label"
-                            />
+                            >
+                                {{ mapearLabelPaginacion(link.label) }}
+                            </Link>
                         </template>
                     </div>
                 </div>
             </template>
         </AppSectionCard>
-
 
         <DeleteConfirmModal 
             :show="mostrarModalEliminar"

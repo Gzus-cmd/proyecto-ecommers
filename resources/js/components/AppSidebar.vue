@@ -26,17 +26,17 @@ import {
 } from '@/components/ui/sidebar';
 
 
-import { dashboard } from '@/routes';
-import * as ProductoController from '@/actions/App/Http/Controllers/Central/ProductoMaestroController';
+import type { NavItem } from '@/types';
+import * as CategoriaController from '@/actions/App/Http/Controllers/Central/CategoriaController';
+import * as LaboratorioController from '@/actions/App/Http/Controllers/Central/LaboratorioController';
 import * as LoteController from '@/actions/App/Http/Controllers/Central/LoteController';
 import * as MovimientoInventarioController from '@/actions/App/Http/Controllers/Central/MovimientoInventarioController';
-import * as CategoriaController from '@/actions/App/Http/Controllers/Central/CategoriaController';
-import * as TransferenciaController from '@/actions/App/Http/Controllers/Central/TransferenciaController';
-import * as SedeController from '@/actions/App/Http/Controllers/Central/SedeController';
+import * as ProductoController from '@/actions/App/Http/Controllers/Central/ProductoMaestroController';
 import * as ProveedorController from '@/actions/App/Http/Controllers/Central/ProveedorController';
-import * as LaboratorioController from '@/actions/App/Http/Controllers/Central/LaboratorioController';
+import * as SedeController from '@/actions/App/Http/Controllers/Central/SedeController';
+import * as TransferenciaController from '@/actions/App/Http/Controllers/Central/TransferenciaController';
+import { dashboard } from '@/routes';
 
-import type { NavItem } from '@/types';
 
 
 interface NavSection {

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+
 interface Props {
     title: string;
     variant?: 'wide' | 'narrow' | 'full';
 }
-const props = withDefaults(defineProps<Props>(), { variant: 'full' });
+
+// CORREGIDO: Eliminamos "const props =" porque no se usaba en el script
+withDefaults(defineProps<Props>(), { variant: 'full' });
 </script>
 
 <template>

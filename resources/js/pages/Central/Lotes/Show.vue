@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import { Trash2, Edit3, ArrowLeft, Calendar, Package, Database, Banknote, History } from 'lucide-vue-next'
+import { ref } from 'vue'
 
 
-import AppPageShell from '@/components/app/AppPageShell.vue'
-import AppPageHeader from '@/components/app/AppPageHeader.vue'
-import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppDetailItem from '@/components/app/AppDetailItem.vue'
+import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
+import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppStatusBadge from '@/components/app/AppStatusBadge.vue'
 import AppWatermark from '@/components/app/AppWatermark.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'

@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import { router, Head, Link } from '@inertiajs/vue3'
 import { debounce } from 'lodash'
 import { Search, Plus, Edit3, Trash2, MapPin } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 
-
-import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppStatusBadge from '@/components/app/AppStatusBadge.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 
 import * as SedeController from '@/actions/App/Http/Controllers/Central/SedeController'
-
 
 defineOptions({
     layout: {
@@ -42,7 +40,6 @@ const props = defineProps<{
 const search = ref(props.filters.search ?? '')
 const activo = ref(props.filters.activo ?? '')
 
-
 const applyFilters = () => {
     router.get(
         SedeController.index.url(),
@@ -52,7 +49,6 @@ const applyFilters = () => {
 }
 watch(search, debounce(() => applyFilters(), 400))
 watch(activo, () => applyFilters())
-
 
 const mostrarModalEliminar = ref(false)
 const sedeSeleccionada = ref<Sede | null>(null)
@@ -74,12 +70,20 @@ function confirmarEliminacion() {
         })
     }
 }
+
+// Helper para mapear las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
+const mapearLabelPaginacion = (label: string) => {
+    return label
+        .replace('&laquo; Previous', '← Anterior')
+        .replace('Next &raquo;', 'Siguiente →')
+        .replace('&laquo;', '←')
+        .replace('&raquo;', '→');
+}
 </script>
 
 <template>
     <AppPageShell title="Sedes y Sucursales" variant="full">
         
-
         <AppPageHeader 
             title="Sedes" 
             subtitle="Administración de locales y sucursales de la cadena."
@@ -93,7 +97,6 @@ function confirmarEliminacion() {
                 </Link>
             </template>
         </AppPageHeader>
-
 
         <AppSectionCard>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -120,7 +123,6 @@ function confirmarEliminacion() {
                 </div>
             </div>
         </AppSectionCard>
-
 
         <AppSectionCard fill noPadding title="Listado de Sucursales">
             <div class="overflow-x-auto flex-1">
@@ -164,10 +166,14 @@ function confirmarEliminacion() {
                                 </div>
                             </td>
                         </tr>
+                        <tr v-if="sedes.data.length === 0">
+                            <td colspan="5" class="py-24 text-center text-muted-foreground italic text-base">
+                                No se encontraron sedes o sucursales registradas.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-
 
             <template #footer>
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
@@ -179,10 +185,11 @@ function confirmarEliminacion() {
                             <Link
                                 v-if="link.url"
                                 :href="link.url"
-                                v-html="link.label"
                                 :class="['px-3 py-1.5 text-xs font-bold rounded-lg border transition-all', 
                                          link.active ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20' : 'border-border/50 text-muted-foreground hover:bg-muted']"
-                            />
+                            >
+                                {{ mapearLabelPaginacion(link.label) }}
+                            </Link>
                         </template>
                     </div>
                 </div>

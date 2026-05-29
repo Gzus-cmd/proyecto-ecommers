@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { useForm, Head } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
 
 
-import AppPageShell from '@/components/app/AppPageShell.vue'
-import AppPageHeader from '@/components/app/AppPageHeader.vue'
-import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppFormActions from '@/components/app/AppFormActions.vue'
+import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
+import AppSectionCard from '@/components/app/AppSectionCard.vue'
 
 import * as TransferenciaController from '@/actions/App/Http/Controllers/Central/TransferenciaController'
 
@@ -47,14 +47,22 @@ const item = ref({
 })
 
 const lotesDisponibles = computed(() => {
-    if (!item.value.producto_id) return []
+    if (!item.value.producto_id) {
+return []
+}
+
     const p = props.productosConLotes.find(p => p.id === item.value.producto_id)
+
     return p ? p.lotes : []
 })
 
 const stockMaximo = computed(() => {
-    if (!item.value.lote_id) return 999999
+    if (!item.value.lote_id) {
+return 999999
+}
+
     const l = lotesDisponibles.value.find(l => l.id === item.value.lote_id)
+
     return l ? l.cantidad_actual : 999999
 })
 
@@ -63,8 +71,13 @@ function agregar() {
     const l = lotesDisponibles.value.find(l => l.id === item.value.lote_id)
     
     if (p && l) {
-        if (item.value.cantidad > l.cantidad_actual) return alert('La cantidad supera el stock disponible en este lote.')
-        if (form.detalles.some(d => d.lote_id === l.id)) return alert('Este lote ya ha sido agregado a la lista.')
+        if (item.value.cantidad > l.cantidad_actual) {
+return alert('La cantidad supera el stock disponible en este lote.')
+}
+
+        if (form.detalles.some(d => d.lote_id === l.id)) {
+return alert('Este lote ya ha sido agregado a la lista.')
+}
 
         form.detalles.push({
             lote_id: l.id,

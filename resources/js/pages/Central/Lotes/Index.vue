@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import { router, Head, Link } from '@inertiajs/vue3'
 import { debounce } from 'lodash'
 import { Search, Plus, Edit3, Eye, Trash2 } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 
-
-import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppStatusBadge from '@/components/app/AppStatusBadge.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 
 import * as LoteController from '@/actions/App/Http/Controllers/Central/LoteController'
-
 
 defineOptions({
     layout: {
@@ -28,14 +26,17 @@ interface Lote {
     cantidad_inicial: number; cantidad_actual: number; costo_unitario: number;
     estado: string; producto: { nombre_comercial: string; sku: string } | null;
 }
-interface Paginator { data: Lote[]; total: number; links: any[]; }
+interface Paginator { 
+    data: Lote[]; 
+    total: number; 
+    links: { url: string | null; label: string; active: boolean }[]; 
+}
 
 const props = defineProps<{ 
     lotes: Paginator, 
     filters: { search?: string; estado?: string },
     estados: string[] 
 }>()
-
 
 const search = ref(props.filters.search ?? '')
 const estado = ref(props.filters.estado ?? '')
@@ -48,12 +49,15 @@ const applyFilters = () => {
 watch(search, debounce(() => applyFilters(), 400))
 watch(estado, () => applyFilters())
 
-
 const mostrarModalEliminar = ref(false)
 const loteSeleccionado = ref<Lote | null>(null)
 
-const abrirModal = (l: Lote) => { loteSeleccionado.value = l; mostrarModalEliminar.value = true; }
-const cerrarModal = () => { mostrarModalEliminar.value = false; loteSeleccionado.value = null; }
+const abrirModal = (l: Lote) => {
+ loteSeleccionado.value = l; mostrarModalEliminar.value = true; 
+}
+const cerrarModal = () => {
+ mostrarModalEliminar.value = false; loteSeleccionado.value = null; 
+}
 const confirmarEliminacion = () => {
     if (loteSeleccionado.value) {
         router.delete(LoteController.destroy.url(loteSeleccionado.value.id), {
@@ -61,12 +65,20 @@ const confirmarEliminacion = () => {
         })
     }
 }
+
+// Helper para mapear las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
+const mapearLabelPaginacion = (label: string) => {
+    return label
+        .replace('&laquo; Previous', '← Anterior')
+        .replace('Next &raquo;', 'Siguiente →')
+        .replace('&laquo;', '←')
+        .replace('&raquo;', '→');
+}
 </script>
 
 <template>
     <AppPageShell title="Control de Lotes" variant="full">
         
-
         <AppPageHeader 
             title="Control de Lotes" 
             subtitle="Seguimiento de stock, costos y fechas de vencimiento."
@@ -78,7 +90,6 @@ const confirmarEliminacion = () => {
                 </Link>
             </template>
         </AppPageHeader>
-
 
         <AppSectionCard>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -95,7 +106,6 @@ const confirmarEliminacion = () => {
                 </div>
             </div>
         </AppSectionCard>
-
 
         <AppSectionCard fill noPadding title="Existencias en Almacén">
             <div class="overflow-x-auto">
@@ -147,23 +157,24 @@ const confirmarEliminacion = () => {
                 </table>
             </div>
 
-
             <template #footer>
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
                     <span class="text-[10px] text-muted-foreground font-black uppercase tracking-widest">
                         Total en Inventario: {{ lotes.total }} lotes
                     </span>
-                    <div class="flex items-center gap-1">
+                    <div v-if="lotes.links.length > 3" class="flex items-center gap-1">
                         <template v-for="(link, index) in lotes.links" :key="index">
-                            <Link v-if="link.url" :href="link.url" v-html="link.label"
+                            <Link v-if="link.url" :href="link.url"
                                 :class="['rounded-lg px-3 py-1.5 text-xs font-bold border transition-all', 
-                                link.active ? 'bg-primary border-primary text-primary-foreground shadow-md' : 'border-border bg-background text-muted-foreground hover:bg-muted']" />
+                                link.active ? 'bg-primary border-primary text-primary-foreground shadow-md' : 'border-border bg-background text-muted-foreground hover:bg-muted']"
+                            >
+                                {{ mapearLabelPaginacion(link.label) }}
+                            </Link>
                         </template>
                     </div>
                 </div>
             </template>
         </AppSectionCard>
-
 
         <DeleteConfirmModal 
             :show="mostrarModalEliminar" 

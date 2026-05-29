@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import { router, Link, Head } from '@inertiajs/vue3'
 import { debounce } from 'lodash'
 import { Search, Plus, Eye, Send, Edit3, Trash2 } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 
-
-import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppStatusBadge from '@/components/app/AppStatusBadge.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 
 import * as TransferenciaController from '@/actions/App/Http/Controllers/Central/TransferenciaController'
-
 
 defineOptions({
     layout: {
@@ -23,8 +21,21 @@ defineOptions({
     },
 });
 
+interface Transferencia {
+    id: number;
+    fecha_envio: string;
+    estado: string;
+    sede_destino: { nombre: string } | null;
+}
+
+interface Paginator {
+    data: Transferencia[];
+    total: number;
+    links: { url: string | null; label: string; active: boolean }[];
+}
+
 const props = defineProps<{ 
-    transferencias: any, 
+    transferencias: Paginator, 
     filters: { search?: string, estado?: string } 
 }>()
 
@@ -32,7 +43,6 @@ const search = ref(props.filters.search ?? '')
 const estado = ref(props.filters.estado ?? '')
 
 const opcionesEstado = ['Pendiente', 'Enviado', 'Recibido', 'Cancelado']
-
 
 const applyFilters = () => {
     router.get(
@@ -45,11 +55,10 @@ const applyFilters = () => {
 watch(search, debounce(() => applyFilters(), 400))
 watch(estado, () => applyFilters())
 
-
 const mostrarModalEliminar = ref(false)
-const transferenciaSeleccionada = ref<any>(null)
+const transferenciaSeleccionada = ref<Transferencia | null>(null)
 
-function abrirModalEliminar(t: any) {
+function abrirModalEliminar(t: Transferencia) {
     transferenciaSeleccionada.value = t
     mostrarModalEliminar.value = true
 }
@@ -67,18 +76,25 @@ function confirmarEliminacion() {
     }
 }
 
-
 const procesarEnvio = (id: number) => {
     if (confirm('¿Confirmar envío? Se descontará el stock de forma permanente.')) {
         router.post(TransferenciaController.enviar.url(id))
     }
+}
+
+// Helper para mapear las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
+const mapearLabelPaginacion = (label: string) => {
+    return label
+        .replace('&laquo; Previous', '← Anterior')
+        .replace('Next &raquo;', 'Siguiente →')
+        .replace('&laquo;', '←')
+        .replace('&raquo;', '→');
 }
 </script>
 
 <template>
     <AppPageShell title="Logística de Sedes" variant="full">
         
-
         <AppPageHeader 
             title="Logística de Sedes" 
             subtitle="Gestión y monitoreo de movimientos de mercadería entre farmacias."
@@ -90,7 +106,6 @@ const procesarEnvio = (id: number) => {
                 </Link>
             </template>
         </AppPageHeader>
-
 
         <AppSectionCard>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -111,7 +126,6 @@ const procesarEnvio = (id: number) => {
             </div>
         </AppSectionCard>
 
-
         <AppSectionCard fill noPadding title="Registro de Movimientos Logísticos">
             <div class="overflow-x-auto flex-1">
                 <table class="w-full text-sm text-left border-collapse">
@@ -129,10 +143,9 @@ const procesarEnvio = (id: number) => {
                             <td class="px-8 py-6 font-mono text-xs text-muted-foreground">#{{ t.id }}</td>
                             <td class="px-8 py-6 font-medium text-foreground/80">{{ t.fecha_envio }}</td>
                             <td class="px-8 py-6 font-bold text-base">
-                                {{ t.sede_destino?.nombre }}
+                                {{ t.sede_destino?.nombre ?? 'Sede no asignada' }}
                             </td>
                             <td class="px-8 py-6 text-center">
-
                                 <AppStatusBadge :status="t.estado" />
                             </td>
                             <td class="px-8 py-6 text-right">
@@ -171,7 +184,6 @@ const procesarEnvio = (id: number) => {
                 </table>
             </div>
 
-
             <template #footer>
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
                     <span class="text-[9px] text-muted-foreground uppercase font-black tracking-widest">
@@ -182,20 +194,20 @@ const procesarEnvio = (id: number) => {
                             <Link
                                 v-if="link.url"
                                 :href="link.url"
-                                v-html="link.label"
                                 :class="['px-3 py-1.5 text-xs font-bold rounded-lg border transition-all', 
                                          link.active ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20' : 'border-border/50 text-muted-foreground hover:bg-muted']"
-                            />
+                            >
+                                {{ mapearLabelPaginacion(link.label) }}
+                            </Link>
                         </template>
                     </div>
                 </div>
             </template>
         </AppSectionCard>
 
-
         <DeleteConfirmModal 
             :show="mostrarModalEliminar"
-            :itemName="`Transferencia #${transferenciaSeleccionada?.id} a ${transferenciaSeleccionada?.sede_destino?.nombre}`"
+            :itemName="`Transferencia #${transferenciaSeleccionada?.id} a ${transferenciaSeleccionada?.sede_destino?.nombre ?? 'Sede'}`"
             type="transferencia de mercadería"
             @close="cerrarModal"
             @confirm="confirmarEliminacion"

@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import { ArrowLeft, Edit3, Trash2, Mail, Phone, User, MapPin, Fingerprint } from 'lucide-vue-next'
+import { ref } from 'vue'
 
 
-import AppPageShell from '@/components/app/AppPageShell.vue'
-import AppPageHeader from '@/components/app/AppPageHeader.vue'
-import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppDetailItem from '@/components/app/AppDetailItem.vue'
+import AppPageHeader from '@/components/app/AppPageHeader.vue'
+import AppPageShell from '@/components/app/AppPageShell.vue'
+import AppSectionCard from '@/components/app/AppSectionCard.vue'
 import AppStatusBadge from '@/components/app/AppStatusBadge.vue'
 import AppWatermark from '@/components/app/AppWatermark.vue'
-import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 import AppLogoIcon from '@/components/AppLogoIcon.vue' 
+import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 
 import * as ProveedorController from '@/actions/App/Http/Controllers/Central/ProveedorController'
 
