@@ -10,6 +10,7 @@ use App\Http\Controllers\Central\LoteController;
 use App\Http\Controllers\Central\SedeController;
 use App\Http\Controllers\Central\TransferenciaController;
 use App\Http\Controllers\Central\MovimientoInventarioController;
+use App\Http\Controllers\Central\DashboardController;
 
 
 use App\Http\Controllers\PruebaController;
@@ -18,9 +19,7 @@ Route::inertia('/', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
-});
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
 Route::middleware(['auth', 'verified'])->prefix('central')->name('central.')->group(function () {
