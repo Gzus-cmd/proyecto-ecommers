@@ -26,7 +26,7 @@ interface Producto {
     categoria: { nombre: string } | null; requiere_receta: boolean; activo: boolean;
 }
 
-// 1. Tipamos correctamente la estructura de links para la paginación
+
 interface Paginator { 
     data: Producto[]; 
     total: number; 
@@ -53,7 +53,7 @@ const abrirModal = (p: Producto) => {
  productoSeleccionado.value = p; mostrarModalEliminar.value = true; 
 }
 
-// 2. Limpieza de estado al cerrar el modal (Buena práctica de consistencia)
+
 const cerrarModal = () => {
     mostrarModalEliminar.value = false
     productoSeleccionado.value = null
@@ -69,7 +69,7 @@ const confirmarEliminacion = () => {
     }
 }
 
-// 3. Helper para mapear las flechas HTML de Laravel a texto plano (Evita usar v-html)
+
 const mapearLabelPaginacion = (label: string) => {
     return label
         .replace('&laquo; Previous', '← Anterior')

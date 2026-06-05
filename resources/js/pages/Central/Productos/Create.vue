@@ -17,16 +17,38 @@ defineOptions({
     },
 });
 
-defineProps<{ categorias: any[], laboratorios: any[], proveedores: any[] }>()
+const props = defineProps<{ 
+    categorias: any[], 
+    laboratorios: any[], 
+    proveedores: any[] 
+}>()
+
 
 const form = useForm({
-    sku: '', nombre_comercial: '', nombre_generico: '', descripcion: '',
-    categoria_id: null, laboratorio_id: null, proveedor_id: null,
-    requiere_receta: false, registro_sanitario: '', concentracion: '',
-    forma_farmaceutica: '', unidad_medida: '', stock_minimo: 0, activo: true,
+    sku: '', 
+    nombre_comercial: '', 
+    nombre_generico: '', 
+    descripcion: '',
+    categoria_id: null, 
+    laboratorio_id: null, 
+    proveedor_id: null,
+    requiere_receta: false, 
+    registro_sanitario: '', 
+    concentracion: '',
+    forma_farmaceutica: '', 
+    unidad_medida: '', 
+    stock_minimo: 0, 
+    activo: true,
 })
 
-const submit = () => form.post(ProductoMaestroController.store.url())
+const submit = () => {
+    form.post(ProductoMaestroController.store.url(), {
+        preserveScroll: true,
+        onSuccess: () => {
+
+        }
+    });
+}
 </script>
 
 <template>
@@ -39,15 +61,25 @@ const submit = () => form.post(ProductoMaestroController.store.url())
         />
 
         <AppSectionCard>
-            <ProductoForm :form="form" :categorias="categorias" :laboratorios="laboratorios" :proveedores="proveedores" @submit="submit">
-                <template #actions>
-                    <AppFormActions 
-                        :backUrl="ProductoMaestroController.index.url()" 
-                        :processing="form.processing" 
-                        submitLabel="Registrar Producto"
-                    />
-                </template>
-            </ProductoForm>
+
+            <form @submit.prevent="submit">
+                <ProductoForm 
+                    :form="form" 
+                    :categorias="categorias" 
+                    :laboratorios="laboratorios" 
+                    :proveedores="proveedores"
+                >
+                    <template #actions>
+                        <div class="pt-4 mt-6 border-t">
+                            <AppFormActions 
+                                :backUrl="ProductoMaestroController.index.url()" 
+                                :processing="form.processing" 
+                                submitLabel="Registrar Producto"
+                            />
+                        </div>
+                    </template>
+                </ProductoForm>
+            </form>
         </AppSectionCard>
 
     </AppPageShell>

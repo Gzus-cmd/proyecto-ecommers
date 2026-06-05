@@ -12,13 +12,13 @@ use Inertia\Inertia;
  
 class ProductoMaestroController extends Controller
 {
-    // ── INDEX ────────────────────────────────────────────────
+
     public function index(Request $request)
     {
         $query = ProductoMaestro::with(['categoria', 'laboratorio', 'proveedor'])
             ->orderBy('nombre_comercial');
  
-        // Búsqueda simple
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -28,7 +28,7 @@ class ProductoMaestroController extends Controller
             });
         }
  
-        // Filtro por activo
+
         if ($request->filled('activo')) {
             $query->where('activo', $request->boolean('activo'));
         }
@@ -41,7 +41,7 @@ class ProductoMaestroController extends Controller
         ]);
     }
  
-    // ── CREATE ───────────────────────────────────────────────
+
     public function create()
     {
         return Inertia::render('Central/Productos/Create', [
@@ -51,7 +51,7 @@ class ProductoMaestroController extends Controller
         ]);
     }
  
-    // ── STORE ────────────────────────────────────────────────
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -78,7 +78,7 @@ class ProductoMaestroController extends Controller
             ->with('success', 'Producto creado correctamente.');
     }
  
-    // ── SHOW ─────────────────────────────────────────────────
+
     public function show(ProductoMaestro $productoMaestro)
     {
         $productoMaestro->load(['categoria', 'laboratorio', 'proveedor', 'lotes']);
@@ -88,7 +88,7 @@ class ProductoMaestroController extends Controller
         ]);
     }
  
-    // ── EDIT ─────────────────────────────────────────────────
+
     public function edit(ProductoMaestro $productoMaestro)
     {
         return Inertia::render('Central/Productos/Edit', [
@@ -99,7 +99,7 @@ class ProductoMaestroController extends Controller
         ]);
     }
  
-    // ── UPDATE ───────────────────────────────────────────────
+
     public function update(Request $request, ProductoMaestro $productoMaestro)
     {
         $validated = $request->validate([
@@ -126,10 +126,10 @@ class ProductoMaestroController extends Controller
             ->with('success', 'Producto actualizado correctamente.');
     }
  
-    // ── DESTROY ──────────────────────────────────────────────
+
     public function destroy(ProductoMaestro $productoMaestro)
     {
-        // Verificar si tiene lotes asociados antes de eliminar
+
         if ($productoMaestro->lotes()->exists()) {
             return back()->with('error', 'No se puede eliminar: el producto tiene lotes registrados.');
         }
