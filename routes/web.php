@@ -10,9 +10,9 @@ use App\Http\Controllers\Central\LoteController;
 use App\Http\Controllers\Central\SedeController;
 use App\Http\Controllers\Central\TransferenciaController;
 use App\Http\Controllers\Central\MovimientoInventarioController;
+use App\Http\Controllers\Central\DashboardController;
 
 
-use App\Http\Controllers\PruebaController;
 
 Route::inertia('/', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
@@ -21,6 +21,8 @@ Route::inertia('/', 'Welcome', [
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 });
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
 Route::middleware(['auth', 'verified'])->prefix('central')->name('central.')->group(function () {
@@ -39,7 +41,7 @@ Route::middleware(['auth', 'verified'])->prefix('central')->name('central.')->gr
     Route::resource('sedes', SedeController::class);
 
     Route::resource('transferencias', TransferenciaController::class);
-    // Ruta para procesar el envío físico y descontar stock
+
     Route::post('transferencias/{transferencia}/enviar', [TransferenciaController::class, 'enviar'])
         ->name('central.transferencias.enviar');
     
