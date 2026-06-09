@@ -4,6 +4,9 @@ import { debounce } from 'lodash'
 import { Search, Plus, Edit3, Eye, Trash2 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
+
+import { useAuth } from '@/composables/useAuth'
+
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
 import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
@@ -21,11 +24,18 @@ defineOptions({
     },
 });
 
-interface Producto {
-    id: number; sku: string; nombre_comercial: string; nombre_generico: string | null;
-    categoria: { nombre: string } | null; requiere_receta: boolean; activo: boolean;
-}
 
+const { can } = useAuth();
+
+interface Producto {
+    id: number; 
+    sku: string; 
+    nombre_comercial: string; 
+    nombre_generico: string | null;
+    categoria: { nombre: string } | null; 
+    requiere_receta: boolean; 
+    activo: boolean;
+}
 
 interface Paginator { 
     data: Producto[]; 
@@ -33,7 +43,10 @@ interface Paginator {
     links: { url: string | null; label: string; active: boolean }[]; 
 }
 
-const props = defineProps<{ productos: Paginator, filters: { search?: string; activo?: string } }>()
+const props = defineProps<{ 
+    productos: Paginator, 
+    filters: { search?: string; activo?: string } 
+}>()
 
 const search = ref(props.filters.search ?? '')
 const activo = ref(props.filters.activo ?? '')
@@ -43,6 +56,7 @@ const applyFilters = () => {
     { search: search.value, activo: activo.value }, 
     { preserveState: true, replace: true })
 }
+
 watch(search, debounce(() => applyFilters(), 400))
 watch(activo, () => applyFilters())
 
@@ -50,9 +64,9 @@ const mostrarModalEliminar = ref(false)
 const productoSeleccionado = ref<Producto | null>(null)
 
 const abrirModal = (p: Producto) => {
- productoSeleccionado.value = p; mostrarModalEliminar.value = true; 
+    productoSeleccionado.value = p; 
+    mostrarModalEliminar.value = true; 
 }
-
 
 const cerrarModal = () => {
     mostrarModalEliminar.value = false
@@ -62,13 +76,10 @@ const cerrarModal = () => {
 const confirmarEliminacion = () => {
     if (productoSeleccionado.value) {
         router.delete(ProductoMaestroController.destroy.url(productoSeleccionado.value.id), {
-            onSuccess: () => {
- cerrarModal() 
-}
+            onSuccess: () => cerrarModal()
         })
     }
 }
-
 
 const mapearLabelPaginacion = (label: string) => {
     return label
@@ -84,8 +95,12 @@ const mapearLabelPaginacion = (label: string) => {
         
         <AppPageHeader title="Productos Maestro" subtitle="Catálogo central de farmacia.">
             <template #actions>
-                <Link :href="ProductoMaestroController.create.url()" 
-                      class="bg-[#b2e2f2] text-[#003d4d] dark:bg-primary dark:text-primary-foreground px-5 py-2 rounded-xl font-bold shadow-lg hover:opacity-90 transition flex items-center gap-2 text-sm">
+         
+                <Link 
+                    v-if="can('maestros.create')"
+                    :href="ProductoMaestroController.create.url()" 
+                    class="bg-[#b2e2f2] text-[#003d4d] dark:bg-primary dark:text-primary-foreground px-5 py-2 rounded-xl font-bold shadow-lg hover:opacity-90 transition flex items-center gap-2 text-sm"
+                >
                     <Plus class="size-4" /> Nuevo Producto
                 </Link>
             </template>
@@ -135,16 +150,27 @@ const mapearLabelPaginacion = (label: string) => {
                             </td>
                             <td class="px-8 py-6">
                                 <div class="flex items-center justify-end gap-6">
+                                
                                     <Link :href="ProductoMaestroController.show.url(p.id)" 
                                           class="text-primary font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
                                         <Eye class="size-3" /> Ver
                                     </Link>
-                                    <Link :href="ProductoMaestroController.edit.url(p.id)" 
-                                          class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
+
+                              
+                                    <Link 
+                                        v-if="can('maestros.update')"
+                                        :href="ProductoMaestroController.edit.url(p.id)" 
+                                        class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1"
+                                    >
                                         <Edit3 class="size-3" /> Editar
                                     </Link>
-                                    <button @click="abrirModal(p)" 
-                                            class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
+
+                                
+                                    <button 
+                                        v-if="can('maestros.delete')"
+                                        @click="abrirModal(p)" 
+                                        class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1"
+                                    >
                                         <Trash2 class="size-3" /> Borrar
                                     </button>
                                 </div>
@@ -178,6 +204,7 @@ const mapearLabelPaginacion = (label: string) => {
                 </div>
             </template>
         </AppSectionCard>
+
 
         <DeleteConfirmModal :show="mostrarModalEliminar" :itemName="productoSeleccionado?.nombre_comercial" type="producto" @close="cerrarModal" @confirm="confirmarEliminacion" />
     </AppPageShell>
