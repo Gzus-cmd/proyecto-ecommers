@@ -7,11 +7,18 @@ use App\Models\Lote;
 use App\Models\ProductoMaestro;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
- 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests; 
+use Illuminate\Support\Facades\Auth; 
+
 class LoteController extends Controller
 {
+    use AuthorizesRequests;
+
+
     public function index(Request $request)
     {
+        $this->authorize('inventario.view');
+
         $query = Lote::with('producto')
             ->orderBy('fecha_vencimiento');
  
@@ -35,8 +42,11 @@ class LoteController extends Controller
         ]);
     }
  
+
     public function create()
     {
+        $this->authorize('maestros.create');
+
         return Inertia::render('Central/Lotes/Create', [
             'productos' => ProductoMaestro::where('activo', true)
                 ->orderBy('nombre_comercial')
@@ -45,8 +55,11 @@ class LoteController extends Controller
         ]);
     }
  
+
     public function store(Request $request)
     {
+        $this->authorize('maestros.create');
+
         $validated = $request->validate([
             'producto_id'       => 'required|exists:central_productos_maestro,id',
             'numero_lote'       => 'required|string|max:100',
@@ -63,11 +76,13 @@ class LoteController extends Controller
  
         return redirect()
             ->route('central.lotes.index')
-            ->with('success', 'Lote creado correctamente.');
+            ->with('success', 'Lote registrado correctamente en el inventario.');
     }
  
+
     public function show(Lote $lote)
     {
+        $this->authorize('inventario.view');
         $lote->load('producto');
  
         return Inertia::render('Central/Lotes/Show', [
@@ -91,8 +106,11 @@ class LoteController extends Controller
         ]);
     }
  
+
     public function edit(Lote $lote)
     {
+        $this->authorize('maestros.update');
+
         return Inertia::render('Central/Lotes/Edit', [
             'lote' => [
                 'id'                => $lote->id,
@@ -113,8 +131,11 @@ class LoteController extends Controller
         ]);
     }
  
+
     public function update(Request $request, Lote $lote)
     {
+        $this->authorize('maestros.update');
+
         $validated = $request->validate([
             'producto_id'       => 'required|exists:central_productos_maestro,id',
             'numero_lote'       => 'required|string|max:100',
@@ -131,15 +152,18 @@ class LoteController extends Controller
  
         return redirect()
             ->route('central.lotes.index')
-            ->with('success', 'Lote actualizado correctamente.');
+            ->with('success', 'Información del lote actualizada correctamente.');
     }
  
+
     public function destroy(Lote $lote)
     {
+        $this->authorize('maestros.delete');
+
         $lote->delete();
  
         return redirect()
             ->route('central.lotes.index')
-            ->with('success', 'Lote eliminado correctamente.');
+            ->with('success', 'Lote eliminado permanentemente.');
     }
 }
