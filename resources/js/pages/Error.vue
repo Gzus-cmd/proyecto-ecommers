@@ -27,7 +27,7 @@ const description = computed(() => {
 
 <template>
   <Head :title="title" />
-  <div class="min-h-screen bg-[#020817] flex items-center justify-center p-6 border-[12px] border-double border-blue-900/20">
+  <div class="min-h-screen bg-[#020817] flex items-center justify-center p-6 border-12 border-double border-blue-900/20">
     <div class="max-w-md w-full text-center space-y-8 animate-in fade-in zoom-in duration-500">
       
 
