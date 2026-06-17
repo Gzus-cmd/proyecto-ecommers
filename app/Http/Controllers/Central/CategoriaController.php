@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
- 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests; 
+
 class CategoriaController extends Controller
 {
-    // ── INDEX ────────────────────────────────────────────────
+    use AuthorizesRequests; 
+
+
     public function index(Request $request)
     {
+        $this->authorize('inventario.view');
+
         $query = Categoria::orderBy('nombre');
  
         if ($request->filled('search')) {
@@ -26,15 +31,19 @@ class CategoriaController extends Controller
         ]);
     }
  
-    // ── CREATE ───────────────────────────────────────────────
+
     public function create()
     {
+        $this->authorize('maestros.create');
+        
         return Inertia::render('Central/Categorias/Create');
     }
  
-    // ── STORE ────────────────────────────────────────────────
+
     public function store(Request $request)
     {
+        $this->authorize('maestros.create');
+
         $validated = $request->validate([
             'nombre'      => 'required|string|max:255|unique:central_categorias,nombre',
             'descripcion' => 'nullable|string|max:500',
@@ -44,20 +53,24 @@ class CategoriaController extends Controller
  
         return redirect()
             ->route('central.categorias.index')
-            ->with('success', 'Categoría creada correctamente.');
+            ->with('success', 'Nueva categoría técnica registrada correctamente.');
     }
  
-    // ── EDIT ─────────────────────────────────────────────────
+
     public function edit(Categoria $categoria)
     {
+        $this->authorize('maestros.update');
+
         return Inertia::render('Central/Categorias/Edit', [
             'categoria' => $categoria,
         ]);
     }
  
-    // ── UPDATE ───────────────────────────────────────────────
+
     public function update(Request $request, Categoria $categoria)
     {
+        $this->authorize('maestros.update');
+
         $validated = $request->validate([
             'nombre'      => "required|string|max:255|unique:central_categorias,nombre,{$categoria->id}",
             'descripcion' => 'nullable|string|max:500',
@@ -67,20 +80,23 @@ class CategoriaController extends Controller
  
         return redirect()
             ->route('central.categorias.index')
-            ->with('success', 'Categoría actualizada correctamente.');
+            ->with('success', 'Categoría de producto actualizada.');
     }
  
-    // ── DESTROY ──────────────────────────────────────────────
+
     public function destroy(Categoria $categoria)
     {
+        $this->authorize('maestros.delete');
+
+
         if ($categoria->productos()->exists()) {
-            return back()->with('error', 'No se puede eliminar: la categoría tiene productos asociados.');
+            return back()->with('error', 'Restricción de integridad: Esta categoría contiene productos activos y no puede eliminarse.');
         }
  
         $categoria->delete();
  
         return redirect()
             ->route('central.categorias.index')
-            ->with('success', 'Categoría eliminada correctamente.');
+            ->with('success', 'La categoría ha sido purgada del sistema.');
     }
 }

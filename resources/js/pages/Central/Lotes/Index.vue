@@ -4,6 +4,9 @@ import { debounce } from 'lodash'
 import { Search, Plus, Edit3, Eye, Trash2 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
+
+import { useAuth } from '@/composables/useAuth'
+
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
 import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
@@ -20,6 +23,9 @@ defineOptions({
         ],
     },
 });
+
+
+const { can } = useAuth();
 
 interface Lote {
     id: number; numero_lote: string; fecha_vencimiento: string;
@@ -66,7 +72,6 @@ const confirmarEliminacion = () => {
     }
 }
 
-// Helper para mapear las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
 const mapearLabelPaginacion = (label: string) => {
     return label
         .replace('&laquo; Previous', '← Anterior')
@@ -84,8 +89,12 @@ const mapearLabelPaginacion = (label: string) => {
             subtitle="Seguimiento de stock, costos y fechas de vencimiento."
         >
             <template #actions>
-                <Link :href="LoteController.create.url()" 
-                      class="bg-[#b2e2f2] text-[#003d4d] dark:bg-primary dark:text-primary-foreground px-5 py-2.5 rounded-xl font-bold shadow-lg hover:opacity-90 transition flex items-center gap-2 text-sm">
+                
+                <Link 
+                    v-if="can('maestros.create')"
+                    :href="LoteController.create.url()" 
+                    class="bg-[#b2e2f2] text-[#003d4d] dark:bg-primary dark:text-primary-foreground px-5 py-2.5 rounded-xl font-bold shadow-lg hover:opacity-90 transition flex items-center gap-2 text-sm"
+                >
                     <Plus class="size-4" /> Nuevo Lote
                 </Link>
             </template>
@@ -144,14 +153,32 @@ const mapearLabelPaginacion = (label: string) => {
                             </td>
                             <td class="px-6 py-6">
                                 <div class="flex items-center justify-end gap-5">
-                                    <Link :href="LoteController.show.url(l.id)" class="text-primary font-black uppercase text-[10px] tracking-widest hover:underline">Ver</Link>
-                                    <Link :href="LoteController.edit.url(l.id)" class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline">Editar</Link>
-                                    <button @click="abrirModal(l)" class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline">Eliminar</button>
+                                    <Link :href="LoteController.show.url(l.id)" class="text-primary font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
+                                        <Eye class="size-3" /> Ver
+                                    </Link>
+
+                                    
+                                    <Link 
+                                        v-if="can('maestros.update')"
+                                        :href="LoteController.edit.url(l.id)" 
+                                        class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1"
+                                    >
+                                        <Edit3 class="size-3" /> Editar
+                                    </Link>
+
+                           
+                                    <button 
+                                        v-if="can('maestros.delete')"
+                                        @click="abrirModal(l)" 
+                                        class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1"
+                                    >
+                                        <Trash2 class="size-3" /> Eliminar
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                         <tr v-if="lotes.data.length === 0">
-                            <td colspan="7" class="py-20 text-center text-muted-foreground italic text-base">No hay lotes que coincidan con los filtros.</td>
+                            <td colspan="7" class="py-20 text-center text-muted-foreground italic text-base">No hay lotes registrados.</td>
                         </tr>
                     </tbody>
                 </table>

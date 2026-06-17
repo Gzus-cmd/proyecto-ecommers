@@ -4,6 +4,9 @@ import { debounce } from 'lodash'
 import { Search, Plus, Edit3, Trash2, Building2 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
+
+import { useAuth } from '@/composables/useAuth'
+
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
 import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
@@ -20,6 +23,9 @@ defineOptions({
         ],
     },
 });
+
+
+const { can } = useAuth();
 
 interface Laboratorio {
     id: number;
@@ -70,7 +76,6 @@ function confirmarEliminacion() {
     }
 }
 
-// Helper para limpiar las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
 const mapearLabelPaginacion = (label: string) => {
     return label
         .replace('&laquo; Previous', '← Anterior')
@@ -88,7 +93,9 @@ const mapearLabelPaginacion = (label: string) => {
             subtitle="Gestión de fabricantes y marcas farmacéuticas."
         >
             <template #actions>
+                
                 <Link
+                    v-if="can('maestros.create')"
                     :href="LaboratorioController.create.url()"
                     class="bg-[#b2e2f2] text-[#003d4d] dark:bg-primary dark:text-primary-foreground px-5 py-2 rounded-xl font-bold shadow-lg hover:opacity-90 transition flex items-center gap-2 text-sm"
                 >
@@ -136,12 +143,21 @@ const mapearLabelPaginacion = (label: string) => {
                             </td>
                             <td class="px-8 py-6">
                                 <div class="flex items-center justify-end gap-6">
-                                    <Link :href="LaboratorioController.edit.url(l.id)" 
-                                          class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline">
+                                   
+                                    <Link 
+                                        v-if="can('maestros.update')"
+                                        :href="LaboratorioController.edit.url(l.id)" 
+                                        class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline"
+                                    >
                                         Editar
                                     </Link>
-                                    <button @click="abrirModalEliminar(l)" 
-                                            class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline">
+
+                                 
+                                    <button 
+                                        v-if="can('maestros.delete')"
+                                        @click="abrirModalEliminar(l)" 
+                                        class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline"
+                                    >
                                         Borrar
                                     </button>
                                 </div>
@@ -149,7 +165,7 @@ const mapearLabelPaginacion = (label: string) => {
                         </tr>
                         <tr v-if="props.laboratorios.data.length === 0">
                             <td colspan="4" class="py-24 text-center text-muted-foreground italic text-base">
-                                No se encontraron laboratorios.
+                                No se encontraron laboratorios registrados.
                             </td>
                         </tr>
                     </tbody>

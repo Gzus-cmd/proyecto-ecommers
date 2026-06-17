@@ -4,6 +4,9 @@ import { debounce } from 'lodash'
 import { Search, Plus, Edit3, Trash2, User, Eye } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 
+
+import { useAuth } from '@/composables/useAuth'
+
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
 import AppPageShell from '@/components/app/AppPageShell.vue'
 import AppSectionCard from '@/components/app/AppSectionCard.vue'
@@ -20,6 +23,9 @@ defineOptions({
         ],
     },
 });
+
+
+const { can } = useAuth();
 
 interface Proveedor {
     id: number; razon_social: string; ruc: string; contacto: string | null;
@@ -72,7 +78,7 @@ function confirmarEliminacion() {
     }
 }
 
-// Helper para mapear las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
+
 const mapearLabelPaginacion = (label: string) => {
     return label
         .replace('&laquo; Previous', '← Anterior')
@@ -90,7 +96,9 @@ const mapearLabelPaginacion = (label: string) => {
             subtitle="Administración de socios comerciales y fabricantes registrados."
         >
             <template #actions>
+               
                 <Link
+                    v-if="can('maestros.create')"
                     :href="ProveedorController.create.url()"
                     class="bg-[#b2e2f2] text-[#003d4d] dark:bg-primary dark:text-primary-foreground px-5 py-2.5 rounded-xl font-bold shadow-lg hover:opacity-90 transition flex items-center gap-2 text-sm"
                 >
@@ -159,16 +167,27 @@ const mapearLabelPaginacion = (label: string) => {
                             </td>
                             <td class="px-8 py-6 text-right">
                                 <div class="flex justify-end items-center gap-6">
+                                    
                                     <Link :href="ProveedorController.show.url(p.id)" 
                                           class="text-primary font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
                                         <Eye class="size-3" /> Ver
                                     </Link>
-                                    <Link :href="ProveedorController.edit.url(p.id)" 
-                                          class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
+
+                                    
+                                    <Link 
+                                        v-if="can('maestros.update')"
+                                        :href="ProveedorController.edit.url(p.id)" 
+                                        class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1"
+                                    >
                                         <Edit3 class="size-3" /> Editar
                                     </Link>
-                                    <button @click="abrirModalEliminar(p)" 
-                                            class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
+
+                                   
+                                    <button 
+                                        v-if="can('maestros.delete')"
+                                        @click="abrirModalEliminar(p)" 
+                                        class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1"
+                                    >
                                         <Trash2 class="size-3" /> Borrar
                                     </button>
                                 </div>

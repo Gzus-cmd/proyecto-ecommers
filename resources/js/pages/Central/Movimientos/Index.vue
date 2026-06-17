@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { router, Link, Head } from '@inertiajs/vue3'
-import axios from 'axios'
+import { router, Link, Head, useHttp } from '@inertiajs/vue3'
 import { debounce } from 'lodash'
 import { Search, Info, X, ArrowUpRight, ArrowDownRight } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
@@ -41,9 +40,9 @@ interface Paginator {
     links: { url: string | null; label: string; active: boolean }[];
 }
 
-const props = defineProps<{ 
-    movimientos: Paginator; 
-    filters: { search?: string } 
+const props = defineProps<{
+    movimientos: Paginator;
+    filters: { search?: string }
 }>()
 
 const search = ref(props.filters.search ?? '')
@@ -59,9 +58,8 @@ const verReferencia = async (mov: Movimiento) => {
         infoTransferencia.value = null
 
         try {
-            const response = await axios.get(TransferenciaController.show.url(mov.movimentable_id), {
-                headers: { 'Accept': 'application/json' }
-            })
+            const http = useHttp()
+            const response = await http.get(TransferenciaController.show.url(mov.movimentable_id))
             infoTransferencia.value = response.data
         } catch (error) {
             console.error("Error al cargar la transferencia", error)
@@ -87,9 +85,9 @@ const mapearLabelPaginacion = (label: string) => {
 
 <template>
     <AppPageShell title="Kardex de Inventario" variant="full">
-        
-        <AppPageHeader 
-            title="Kardex de Inventario" 
+
+        <AppPageHeader
+            title="Kardex de Inventario"
             subtitle="Historial completo y trazabilidad de movimientos de stock en tiempo real."
         />
 
@@ -148,7 +146,7 @@ const mapearLabelPaginacion = (label: string) => {
                                 </div>
                             </td>
                             <td class="px-6 py-6 text-right">
-                                <button @click="verReferencia(m)" 
+                                <button @click="verReferencia(m)"
                                       class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary hover:text-foreground transition-all bg-primary/5 hover:bg-primary/20 px-4 py-2 rounded-lg border border-primary/10 shadow-sm">
                                     <Info class="size-3" /> Ver Detalle
                                 </button>
@@ -160,7 +158,7 @@ const mapearLabelPaginacion = (label: string) => {
                     </tbody>
                 </table>
             </div>
-            
+
             <template #footer>
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3">
                     <span class="text-[10px] text-muted-foreground font-black uppercase tracking-widest">
@@ -169,7 +167,7 @@ const mapearLabelPaginacion = (label: string) => {
                     <div v-if="movimientos.links?.length > 3" class="flex items-center gap-1">
                         <template v-for="(link, index) in movimientos.links" :key="index">
                             <Link v-if="link.url" :href="link.url"
-                                :class="['rounded-lg px-3 py-1.5 text-xs font-bold border transition-all', 
+                                :class="['rounded-lg px-3 py-1.5 text-xs font-bold border transition-all',
                                 link.active ? 'bg-primary border-primary text-primary-foreground shadow-md' : 'border-border bg-background text-muted-foreground hover:bg-muted']"
                             >
                                 {{ mapearLabelPaginacion(link.label) }}

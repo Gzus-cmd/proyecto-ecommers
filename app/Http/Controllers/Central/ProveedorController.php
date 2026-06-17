@@ -6,11 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Proveedor;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
- 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests; 
+
 class ProveedorController extends Controller
 {
+    use AuthorizesRequests;
+
+
     public function index(Request $request)
     {
+        $this->authorize('inventario.view');
+
         $query = Proveedor::orderBy('razon_social');
  
         if ($request->filled('search')) {
@@ -31,13 +37,19 @@ class ProveedorController extends Controller
         ]);
     }
  
+
     public function create()
     {
+        $this->authorize('maestros.create');
+
         return Inertia::render('Central/Proveedores/Create');
     }
  
+
     public function store(Request $request)
     {
+        $this->authorize('maestros.create');
+
         $validated = $request->validate([
             'razon_social' => 'required|string|max:255',
             'ruc'          => 'required|string|max:20|unique:central_proveedores,ruc',
@@ -52,22 +64,45 @@ class ProveedorController extends Controller
  
         return redirect()
             ->route('central.proveedores.index')
-            ->with('success', 'Proveedor creado correctamente.');
+            ->with('success', 'Proveedor dado de alta en el sistema correctamente.');
+    }
+
+
+    public function show(Proveedor $proveedor)
+    {
+        $this->authorize('inventario.view');
+
+        return Inertia::render('Central/Proveedores/Show', [
+            'proveedor' => [
+                'id'           => $proveedor->id,
+                'razon_social' => $proveedor->razon_social,
+                'ruc'          => $proveedor->ruc,
+                'contacto'     => $proveedor->contacto,
+                'telefono'     => $proveedor->telefono,
+                'email'        => $proveedor->email,
+                'direccion'    => $proveedor->direccion,
+                'activo'       => $proveedor->activo,
+                'created_at'   => $proveedor->created_at?->format('d/m/Y H:i'),
+                'updated_at'   => $proveedor->updated_at?->format('d/m/Y H:i'),
+            ],
+        ]);
     }
  
 
     public function edit(Proveedor $proveedor)
     {
-    // Si llegaste aquí y el ID sigue siendo null, revisa que el Modelo Proveedor
-    // tenga los campos en el array $fillable.
+        $this->authorize('maestros.update');
     
         return Inertia::render('Central/Proveedores/Edit', [
             'proveedor' => $proveedor
         ]);
     }
  
+
     public function update(Request $request, Proveedor $proveedor)
     {
+        $this->authorize('maestros.update');
+
         $validated = $request->validate([
             'razon_social' => 'required|string|max:255',
             'ruc'          => "required|string|max:20|unique:central_proveedores,ruc,{$proveedor->id}",
@@ -82,38 +117,23 @@ class ProveedorController extends Controller
  
         return redirect()
             ->route('central.proveedores.index')
-            ->with('success', 'Proveedor actualizado correctamente.');
+            ->with('success', 'Ficha de proveedor actualizada con éxito.');
     }
  
+
     public function destroy(Proveedor $proveedor)
     {
+        $this->authorize('maestros.delete');
+
+
         if ($proveedor->productos()->exists()) {
-            return back()->with('error', 'No se puede eliminar: el proveedor tiene productos asociados.');
+            return back()->with('error', 'No es posible eliminar el proveedor: Existen productos vinculados a este registro en el catálogo maestro.');
         }
  
         $proveedor->delete();
  
         return redirect()
             ->route('central.proveedores.index')
-            ->with('success', 'Proveedor eliminado correctamente.');
+            ->with('success', 'El proveedor ha sido removido del ecosistema.');
     }
-
-    public function show(Proveedor $proveedor)
-{
-    return Inertia::render('Central/Proveedores/Show', [
-        'proveedor' => [
-            'id'           => $proveedor->id,
-            'razon_social' => $proveedor->razon_social,
-            'ruc'          => $proveedor->ruc,
-            'contacto'     => $proveedor->contacto,
-            'telefono'     => $proveedor->telefono,
-            'email'        => $proveedor->email,
-            'direccion'    => $proveedor->direccion,
-            'activo'       => $proveedor->activo,
-            'created_at'   => $proveedor->created_at?->format('d/m/Y H:i'),
-            'updated_at'   => $proveedor->updated_at?->format('d/m/Y H:i'),
-        ],
-    ]);
-}
-
 }

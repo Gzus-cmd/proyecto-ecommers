@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { router, Link, Head } from '@inertiajs/vue3'
 import { debounce } from 'lodash'
-import { Search, Plus, Eye, Send, Edit3, Trash2 } from 'lucide-vue-next'
+import { Search, Plus, Eye, Send, Edit3, Trash2, ShieldAlert } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
+
+
+import { useAuth } from '@/composables/useAuth'
 
 import AppPageHeader from '@/components/app/AppPageHeader.vue'
 import AppPageShell from '@/components/app/AppPageShell.vue'
@@ -20,6 +23,9 @@ defineOptions({
         ],
     },
 });
+
+
+const { can } = useAuth();
 
 interface Transferencia {
     id: number;
@@ -77,12 +83,12 @@ function confirmarEliminacion() {
 }
 
 const procesarEnvio = (id: number) => {
-    if (confirm('¿Confirmar envío? Se descontará el stock de forma permanente.')) {
+   
+    if (confirm('¿EJECUTAR DESPACHO? Esta acción descontará stock del Kardex de forma irreversible.')) {
         router.post(TransferenciaController.enviar.url(id))
     }
 }
 
-// Helper para mapear las flechas de escape HTML de Laravel a texto plano (Evita usar v-html)
 const mapearLabelPaginacion = (label: string) => {
     return label
         .replace('&laquo; Previous', '← Anterior')
@@ -100,6 +106,7 @@ const mapearLabelPaginacion = (label: string) => {
             subtitle="Gestión y monitoreo de movimientos de mercadería entre farmacias."
         >
             <template #actions>
+                
                 <Link :href="TransferenciaController.create.url()" 
                       class="bg-[#b2e2f2] text-[#003d4d] dark:bg-primary dark:text-primary-foreground px-5 py-2.5 rounded-xl font-bold shadow-lg hover:opacity-90 transition flex items-center gap-2 text-sm">
                     <Plus class="size-4" /> Nueva Transferencia
@@ -155,19 +162,28 @@ const mapearLabelPaginacion = (label: string) => {
                                         <Eye class="size-3" /> Ver
                                     </Link>
                                     
-                                    <button v-if="t.estado === 'Pendiente'" 
+                                    
+                                    <button v-if="can('transferencias.enviar') && t.estado === 'Pendiente'" 
                                             @click="procesarEnvio(t.id)" 
-                                            class="bg-emerald-500 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 shadow-sm transition-all flex items-center gap-1">
+                                            class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 shadow-sm transition-all flex items-center gap-1">
                                         <Send class="size-3" /> Enviar
                                     </button>
+
                                     
+                                    <div v-else-if="!can('transferencias.enviar') && t.estado === 'Pendiente'"
+                                         class="flex items-center gap-1 text-muted-foreground/60 italic text-[9px] font-black uppercase tracking-tighter">
+                                        <ShieldAlert class="size-3" /> Pendiente Autorización
+                                    </div>
+                                    
+                             
                                     <Link v-if="t.estado === 'Pendiente'" 
                                           :href="TransferenciaController.edit.url(t.id)" 
                                           class="text-amber-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
                                         <Edit3 class="size-3" /> Editar
                                     </Link>
 
-                                    <button v-if="t.estado === 'Pendiente'" 
+                                    
+                                    <button v-if="can('maestros.delete') && t.estado === 'Pendiente'" 
                                             @click="abrirModalEliminar(t)" 
                                             class="text-red-500 font-black uppercase text-[10px] tracking-widest hover:underline flex items-center gap-1">
                                         <Trash2 class="size-3" /> Anular
@@ -177,7 +193,7 @@ const mapearLabelPaginacion = (label: string) => {
                         </tr>
                         <tr v-if="transferencias.data.length === 0">
                             <td colspan="5" class="py-24 text-center text-muted-foreground italic text-base">
-                                No se encontraron transferencias con los parámetros seleccionados.
+                                No se encontraron registros de logística.
                             </td>
                         </tr>
                     </tbody>
@@ -207,8 +223,8 @@ const mapearLabelPaginacion = (label: string) => {
 
         <DeleteConfirmModal 
             :show="mostrarModalEliminar"
-            :itemName="`Transferencia #${transferenciaSeleccionada?.id} a ${transferenciaSeleccionada?.sede_destino?.nombre ?? 'Sede'}`"
-            type="transferencia de mercadería"
+            :itemName="`Transferencia #${transferenciaSeleccionada?.id}`"
+            type="documento de transferencia"
             @close="cerrarModal"
             @confirm="confirmarEliminacion"
         />
