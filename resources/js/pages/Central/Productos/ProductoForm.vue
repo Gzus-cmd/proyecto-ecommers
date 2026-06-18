@@ -1,14 +1,17 @@
 <script setup lang="ts">
 
 interface Option { id: number; nombre?: string; razon_social?: string }
-
+// 1. Removemos 'form' de las props tradicionales form: any
 const props = defineProps<{
-    form: any 
     categorias: Option[]
     laboratorios: Option[]
     proveedores: Option[]
     isEditing?: boolean
 }>()
+
+// 2. Definimos el formulario como un v-model macro (disponible en Vue 3.4+)
+// Esto maneja la reactividad de forma bidireccional sin mutar la prop directamente
+const form = defineModel<any>('form', { required: true })
 
 
 const labelClass = "block text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-2"
